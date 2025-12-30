@@ -1,129 +1,138 @@
-# FPS Arena - 3D First-Person Shooter
+# 🎮 Zombie Survival FPS
 
-A browser-based 3D first-person shooter game built with Three.js, featuring low-poly stylized graphics, three challenging levels, and a boss fight!
+A thrilling browser-based 3D first-person shooter built with Three.js! Battle through waves of zombies, collect weapons, and survive as long as you can.
 
-![FPS Arena](https://img.shields.io/badge/Game-FPS%20Arena-blue)
-![Three.js](https://img.shields.io/badge/Three.js-0.160-green)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
+[![Play Now](https://img.shields.io/badge/🎮_Play_Now-Live_Demo-brightgreen?style=for-the-badge)](https://tapiwamakandigona.github.io/fps-game/)
+[![GitHub](https://img.shields.io/badge/GitHub-Source_Code-black?style=for-the-badge&logo=github)](https://github.com/tapiwamakandigona/fps-game)
 
-## Play Now
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)
+![Three.js](https://img.shields.io/badge/Three.js-000000?style=flat&logo=three.js&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)
 
-[Play FPS Arena](https://marymakerx.github.io/Timetable-Generator/)
+---
 
-## Features
+## ✨ Features
 
-- **3D Graphics**: Low-poly stylized visuals with smooth performance
-- **3 Unique Levels**: 
-  - Training Grounds (Tutorial)
-  - The Warehouse (Medium difficulty)
-  - The Arena (Boss fight)
-- **Enemy Types**:
-  - Basic enemies with patrol AI
-  - Fast enemies that flank
-  - Boss with multiple attack phases
-- **Weapons & Combat**:
-  - Rifle with ammo management
-  - Reload mechanics
-  - Hit feedback with particle effects
-- **Full Audio**:
-  - Weapon sounds
-  - Enemy sounds
-  - Background music
-- **HUD**:
-  - Health bar
-  - Ammo counter
-  - Score display
-  - Boss health bar
+### 🎯 Gameplay
+- **Wave-Based Survival** - Battle endless waves of increasingly difficult enemies
+- **Multiple Enemy Types** - Zombies, Fast Zombies, Fat Zombies, and Gunners
+- **Mystery Boxes** - Random weapon drops with exciting reveals
+- **Shop Stations** - Purchase weapons and upgrades between waves
+- **Progressive Difficulty** - Each wave gets harder with more enemies
 
-## Controls
+### 🔫 Weapons Arsenal
+- **Pistol** - Starting weapon, reliable and accurate
+- **Rifle** - High fire rate, medium damage
+- **Shotgun** - Devastating close-range power
+- **SMG** - Spray and pray with high mobility
 
+### 🎨 Visuals & Audio
+- **Low-Poly Stylized Graphics** - Smooth 60fps performance
+- **Particle Effects** - Muzzle flashes, blood splatter, explosions
+- **Dynamic Lighting** - Atmospheric game environments
+- **Full Sound Design** - Weapon sounds, enemy growls, background music
+
+### 📱 Cross-Platform
+- **Desktop Controls** - WASD + Mouse
+- **Mobile Controls** - Touch joystick and buttons
+- **Responsive UI** - Works on all screen sizes
+
+---
+
+## 🎮 Controls
+
+### Desktop
 | Key | Action |
 |-----|--------|
-| W | Move Forward |
-| S | Move Backward |
-| A | Strafe Left |
-| D | Strafe Right |
-| Mouse | Look Around |
-| Left Click | Shoot |
-| R | Reload |
-| ESC | Pause Menu |
+| `W A S D` | Move |
+| `Mouse` | Look Around |
+| `Left Click` | Shoot |
+| `R` | Reload |
+| `E` | Interact (Buy, Open) |
+| `1-4` | Switch Weapons |
+| `ESC` | Pause Menu |
 
-## Technology Stack
+### Mobile
+- **Left Joystick** - Movement
+- **Right Area** - Look/Aim (drag)
+- **Fire Button** - Shoot (drag to aim while firing)
+- **Action Buttons** - Reload, Jump, Interact
 
-- **Three.js** - 3D rendering
-- **TypeScript** - Type-safe development
-- **Vite** - Fast build tool
-- **Howler.js** - Audio management
-- **GitHub Pages** - Hosting
+---
 
-## Local Development
+## 🛠️ Tech Stack
 
-### Prerequisites
+| Technology | Purpose |
+|------------|---------|
+| **TypeScript** | Type-safe game logic |
+| **Three.js** | 3D rendering engine |
+| **Howler.js** | Audio management |
+| **Vite** | Build tool & dev server |
+| **GitHub Pages** | Hosting |
 
-- Node.js 18+
-- npm
+---
 
-### Setup
+## 🚀 Local Development
 
 ```bash
 # Clone the repository
-git clone https://github.com/marymakerx/Timetable-Generator.git
-cd Timetable-Generator
+git clone https://github.com/tapiwamakandigona/fps-game.git
+cd fps-game
 
 # Install dependencies
 npm install
 
 # Start development server
 npm run dev
-```
 
-### Build
-
-```bash
-# Create production build
+# Build for production
 npm run build
-
-# Preview production build
-npm run preview
 ```
 
-## Project Structure
+---
+
+## 📁 Project Structure
 
 ```
 src/
-├── core/           # Game core (Game, GameLoop)
-├── managers/       # System managers (Audio, Input, UI, Level)
-├── entities/       # Game entities (Player, Enemies, Pickups)
-│   └── EnemyTypes/ # Enemy type implementations
-├── types/          # TypeScript interfaces
-└── main.ts         # Entry point
+├── core/              # Game engine core
+│   ├── Game.ts        # Main game controller
+│   └── GameLoop.ts    # Frame timing & updates
+├── managers/          # System managers
+│   ├── AudioManager   # Sound effects & music
+│   ├── InputManager   # Keyboard/Mouse/Touch
+│   ├── LevelManager   # Wave spawning & levels
+│   └── UIManager      # HUD & menus
+├── entities/          # Game objects
+│   ├── Player.ts      # Player controller
+│   ├── WeaponSystem   # Weapon handling
+│   ├── MysteryBox     # Random rewards
+│   └── EnemyTypes/    # Enemy implementations
+└── main.ts            # Entry point
 ```
 
-## Game Mechanics
+---
 
-### Player
-- 100 HP starting health
-- WASD movement with smooth acceleration
-- First-person mouse look
-- Collision detection with environment
+## 👨‍💻 Author
 
-### Enemies
-| Type | Health | Speed | Damage | Score |
-|------|--------|-------|--------|-------|
-| Basic | 30 | Slow | 10 | 100 |
-| Fast | 20 | Fast | 5 | 150 |
-| Boss | 200 | Medium | 25 | 1000 |
+**Tapiwa Makandigona**
 
-### Rifle
-- Damage: 25 per hit
-- Magazine: 30 rounds
-- Fire Rate: 3 rounds/second
-- Reload Time: 2 seconds
+- 🌐 Portfolio: [tapiwamakandigona.github.io/portfolio](https://tapiwamakandigona.github.io/portfolio)
+- 💻 GitHub: [@tapiwamakandigona](https://github.com/tapiwamakandigona)
+- 📧 Email: silentics.org@gmail.com
 
-## Contributing
+---
 
-Feel free to submit issues and pull requests!
+## 📄 License
 
-## License
+This project is open source and available under the [MIT License](LICENSE).
 
-MIT License - see LICENSE file for details
+---
+
+<div align="center">
+
+**[🎮 Play Now](https://tapiwamakandigona.github.io/fps-game/) • [⭐ Star on GitHub](https://github.com/tapiwamakandigona/fps-game)**
+
+*Built with ❤️ by Tapiwa Makandigona*
+
+</div>

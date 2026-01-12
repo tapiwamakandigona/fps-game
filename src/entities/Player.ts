@@ -89,6 +89,7 @@ export class Player implements Damageable {
     if (input.weapon3) this.weaponSystem.equipWeapon(WeaponType.SHOTGUN);
     if (input.weapon4) this.weaponSystem.equipWeapon(WeaponType.SNIPER);
     if (input.weapon5 || input.melee) this.weaponSystem.equipWeapon(WeaponType.KNIFE);
+    if (input.weapon6) this.weaponSystem.equipWeapon(WeaponType.ROCKET_LAUNCHER);
 
     // Handle shooting
     if (input.shoot) {

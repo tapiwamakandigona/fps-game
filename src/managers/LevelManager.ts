@@ -9,6 +9,7 @@ import { FatZombieEnemy } from '../entities/EnemyTypes/FatZombieEnemy';
 import { FastZombieEnemy } from '../entities/EnemyTypes/FastZombieEnemy';
 import { GunnerZombieEnemy } from '../entities/EnemyTypes/GunnerZombieEnemy';
 import { Pickup } from '../entities/Pickup';
+import { Rocket } from '../entities/Rocket';
 import { MysteryBox } from '../entities/MysteryBox';
 import { ShopStation } from '../entities/ShopStation';
 import { EnemyType, PickupType, ColorPalette, LevelConfig, EnemySpawn, PickupSpawn, GameState } from '../types';
@@ -18,6 +19,7 @@ export class LevelManager {
   private currentLevel: number = 0;
   private enemies: Enemy[] = [];
   private pickups: Pickup[] = [];
+  private projectiles: Rocket[] = [];
   private levelObjects: THREE.Object3D[] = [];
   private playerSpawn: THREE.Vector3 = new THREE.Vector3(0, 1.8, 0);
   private currentWave: number = 0;
@@ -200,6 +202,13 @@ export class LevelManager {
       pickup.dispose();
     });
     this.pickups = [];
+
+    // Remove projectiles
+    this.projectiles.forEach(projectile => {
+      this.game.scene.remove(projectile.mesh);
+      projectile.dispose();
+    });
+    this.projectiles = [];
 
     // Remove level-specific objects (lights, walls, props, etc.)
     this.levelObjects.forEach(obj => {
@@ -847,6 +856,25 @@ export class LevelManager {
       return;
     }
 
+    // Update projectiles
+    const projectilesToRemove: Rocket[] = [];
+    for (const projectile of this.projectiles) {
+        projectile.update(delta);
+        if (projectile.shouldRemove()) {
+            projectilesToRemove.push(projectile);
+        }
+    }
+
+    // Remove dead projectiles
+    for (const projectile of projectilesToRemove) {
+        this.game.scene.remove(projectile.mesh);
+        projectile.dispose();
+        const index = this.projectiles.indexOf(projectile);
+        if (index > -1) {
+            this.projectiles.splice(index, 1);
+        }
+    }
+
     // Update enemies with safe iteration
     const enemiesToRemove: Enemy[] = [];
 
@@ -954,6 +982,11 @@ export class LevelManager {
 
   public getPickups(): Pickup[] {
     return this.pickups;
+  }
+
+  public addProjectile(projectile: Rocket): void {
+    this.projectiles.push(projectile);
+    this.game.scene.add(projectile.mesh);
   }
 
   public removePickup(pickup: Pickup): void {

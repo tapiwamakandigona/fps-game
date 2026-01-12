@@ -1,11 +1,15 @@
 import * as THREE from 'three';
 import { Game } from '../core/Game';
 import { EnemyState, EnemyConfig, Damageable, ColorPalette } from '../types';
+import { ParticleType } from '../managers/ParticleManager';
 
 export abstract class Enemy implements Damageable {
   protected game: Game;
   public mesh: THREE.Group;
   
+  // Animation
+  private walkCycle: number = 0;
+
   // Stats
   public health: number;
   public maxHealth: number;
@@ -201,6 +205,11 @@ export abstract class Enemy implements Damageable {
     direction.y = 0;
     direction.normalize();
     
+    // Animate wobbling/walking
+    this.walkCycle += delta * this.speed * 10;
+    this.mesh.rotation.z = Math.sin(this.walkCycle) * 0.05;
+    this.mesh.position.y = Math.abs(Math.sin(this.walkCycle)) * 0.1;
+
     // Calculate new position
     const newPosition = this.mesh.position.clone();
     newPosition.x += direction.x * this.speed * delta;
@@ -208,7 +217,8 @@ export abstract class Enemy implements Damageable {
     
     // Check collision with level objects
     if (!this.checkCollision(newPosition)) {
-      this.mesh.position.copy(newPosition);
+      this.mesh.position.x = newPosition.x;
+      this.mesh.position.z = newPosition.z;
     } else {
       // Try sliding along walls
       const slideX = this.mesh.position.clone();
@@ -332,6 +342,7 @@ export abstract class Enemy implements Damageable {
   }
 
   protected die(): void {
+    if (this.isDying) return;
     this.isDying = true;
     this.deathTimer = 0;
     this.state = EnemyState.DEAD;
@@ -341,17 +352,21 @@ export abstract class Enemy implements Damageable {
     
     // Play death sound
     this.game.audioManager.playSound('enemyDeath');
+
+    // Create gore explosion
+    this.game.particleManager.createExplosion(this.mesh.position, 5, 0xaa0000); // Small blood explosion
+    this.game.particleManager.createBloodSplatter(this.mesh.position, new THREE.Vector3(0, 1, 0), 10);
   }
 
   protected updateDeath(delta: number): void {
     this.deathTimer += delta;
     
     // Fall over animation
-    this.mesh.rotation.x = Math.min(Math.PI / 2, this.deathTimer * 3);
-    this.mesh.position.y = Math.max(-1, -this.deathTimer * 2);
+    this.mesh.rotation.x += delta * 5;
+    this.mesh.position.y -= delta * 2;
     
     // Fade out
-    const opacity = 1 - this.deathTimer;
+    const opacity = 1 - this.deathTimer * 2; // Faster fade
     this.mesh.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
         child.material.transparent = true;

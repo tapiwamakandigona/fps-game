@@ -39,7 +39,8 @@ export enum WeaponType {
   SHOTGUN = 'SHOTGUN',
   SNIPER = 'SNIPER',
   KNIFE = 'KNIFE',
-  MACHINE_GUN = 'MACHINE_GUN'
+  MACHINE_GUN = 'MACHINE_GUN',
+  ROCKET_LAUNCHER = 'ROCKET_LAUNCHER'
 }
 
 // Pickup Types
@@ -155,6 +156,7 @@ export interface InputState {
   weapon3: boolean;
   weapon4: boolean;
   weapon5: boolean;
+  weapon6: boolean;
   mouseMovement: { x: number; y: number };
 }
 
@@ -278,7 +280,26 @@ export const GAME_CONSTANTS = {
       spread: 0.04,
       infiniteAmmo: false,
       adsZoom: 1.3
+    },
+    ROCKET_LAUNCHER: {
+      name: 'Rocket Launcher',
+      type: WeaponType.ROCKET_LAUNCHER,
+      damage: 150, // Direct hit damage (AoE handled separately or combined)
+      fireRate: 1.5,
+      magazineSize: 4,
+      maxReserveAmmo: 20,
+      reloadTime: 3.0,
+      range: 150,
+      spread: 0.01,
+      infiniteAmmo: false,
+      adsZoom: 1.5
     }
+  },
+  ROCKET: {
+    SPEED: 30,
+    EXPLOSION_RADIUS: 8,
+    EXPLOSION_DAMAGE: 120,
+    LIFETIME: 5
   },
   ENEMY: {
     BASIC: {
@@ -347,7 +368,7 @@ export const GAME_CONSTANTS = {
   MYSTERY_BOX: {
     COST: 150,
     WEAPON_DURATION: 30, // Seconds before mystery box weapon disappears
-    WEAPONS: [WeaponType.RIFLE, WeaponType.SHOTGUN, WeaponType.SNIPER, WeaponType.MACHINE_GUN]
+    WEAPONS: [WeaponType.RIFLE, WeaponType.SHOTGUN, WeaponType.SNIPER, WeaponType.MACHINE_GUN, WeaponType.ROCKET_LAUNCHER]
   },
   SHOP: {
     HEALTH_COST: 50,

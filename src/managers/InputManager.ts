@@ -48,6 +48,7 @@ export class InputManager {
     weapon3: false,
     weapon4: false,
     weapon5: false,
+    weapon6: false,
     mouseMovement: { x: 0, y: 0 }
   };
 
@@ -137,7 +138,7 @@ export class InputManager {
     }
 
     // Prevent default for game keys
-    if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyR', 'KeyE', 'Space', 'KeyV', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5'].includes(event.code)) {
+    if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyR', 'KeyE', 'Space', 'KeyV', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6'].includes(event.code)) {
       event.preventDefault();
     }
   }
@@ -200,12 +201,13 @@ export class InputManager {
     this.currentInput.jump = this.keys.has('Space');
     this.currentInput.melee = this.keys.has('KeyV');
 
-    // Weapon switching (1-5)
+    // Weapon switching (1-6)
     this.currentInput.weapon1 = this.keys.has('Digit1');
     this.currentInput.weapon2 = this.keys.has('Digit2');
     this.currentInput.weapon3 = this.keys.has('Digit3');
     this.currentInput.weapon4 = this.keys.has('Digit4');
     this.currentInput.weapon5 = this.keys.has('Digit5');
+    this.currentInput.weapon6 = this.keys.has('Digit6');
 
     // Add touch joystick input
     if (this.isMobile && this.joystickActive) {

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Game } from '../core/Game';
 import { Rocket } from '../entities/Rocket';
 import { GAME_CONSTANTS, WeaponType, ColorPalette } from '../types';
+import { ParticleType } from '../managers/ParticleManager';
 
 interface WeaponData {
     type: WeaponType;
@@ -47,7 +48,6 @@ export class WeaponSystem {
     private knifeSwingTimer: number = 0;
 
     // Visuals
-    private muzzleFlash: THREE.PointLight;
     private muzzleFlashTimer: number = 0;
 
     // Raycasting
@@ -64,11 +64,6 @@ export class WeaponSystem {
     constructor(game: Game) {
         this.game = game;
         this.containerMesh = new THREE.Group();
-
-        // Create muzzle flash
-        this.muzzleFlash = new THREE.PointLight(0xffaa00, 0, 5);
-        this.muzzleFlash.position.set(0, 0, -0.8);
-        this.containerMesh.add(this.muzzleFlash);
 
         // Initialize raycaster
         this.raycaster = new THREE.Raycaster();
@@ -792,7 +787,6 @@ export class WeaponSystem {
         // Update muzzle flash
         if (this.muzzleFlashTimer > 0) {
             this.muzzleFlashTimer -= delta;
-            this.muzzleFlash.intensity = this.muzzleFlashTimer > 0 ? 2 : 0;
         }
 
         // Apply kickback recovery
@@ -884,7 +878,8 @@ export class WeaponSystem {
 
         // Muzzle flash
         this.muzzleFlashTimer = 0.05;
-        this.muzzleFlash.intensity = 2;
+        this.createMuzzleFlash();
+        this.createShellEjection();
 
         // Kickback (more for shotgun, less for pistol)
         switch (this.currentWeaponType) {
@@ -1053,40 +1048,53 @@ export class WeaponSystem {
         }
     }
 
+    private createMuzzleFlash(): void {
+        const muzzlePos = new THREE.Vector3(0, 0.05, -0.6);
+        muzzlePos.applyMatrix4(this.currentWeapon!.mesh.matrixWorld);
+
+        // Add velocity to follow player movement slightly?
+        // For now static burst at muzzle position is fine.
+        const direction = new THREE.Vector3(0, 0, -1);
+        direction.applyQuaternion(this.game.camera.quaternion);
+
+        this.game.particleManager.createParticle(
+            ParticleType.MUZZLE_FLASH,
+            muzzlePos,
+            direction,
+            0
+        );
+    }
+
+    private createShellEjection(): void {
+        const shellPos = new THREE.Vector3(0.1, 0, 0); // Right side ejection
+        shellPos.applyMatrix4(this.currentWeapon!.mesh.matrixWorld);
+
+        const direction = new THREE.Vector3(1, 0.5, 0); // Out and up
+        direction.applyQuaternion(this.game.camera.quaternion);
+
+        this.game.particleManager.createParticle(
+            ParticleType.SHELL,
+            shellPos,
+            direction,
+            2 + Math.random() * 2
+        );
+    }
+
     private createHitEffect(position: THREE.Vector3, isEnemy: boolean): void {
-        const geometry = new THREE.SphereGeometry(0.1, 8, 8);
-        const material = new THREE.MeshBasicMaterial({
-            color: isEnemy ? 0xff0000 : 0xffff00,
-            transparent: true,
-            opacity: 1
-        });
-
-        const particle = new THREE.Mesh(geometry, material);
-        particle.position.copy(position);
-        this.game.scene.add(particle);
-
-        let lifetime = 0;
-        const animate = () => {
-            lifetime += 0.016;
-
-            const scale = 1 + lifetime * 5;
-            particle.scale.set(scale, scale, scale);
-            material.opacity = 1 - lifetime * 5;
-
-            if (lifetime < 0.2) {
-                requestAnimationFrame(animate);
-            } else {
-                this.game.scene.remove(particle);
-                geometry.dispose();
-                material.dispose();
-            }
-        };
-
-        animate();
+        // Calculate direction from hit point
+        // Ideally we'd have normal info, but we can fake it or just use random spray
+        const normal = new THREE.Vector3(0, 1, 0);
 
         if (isEnemy) {
+            this.game.particleManager.createBloodSplatter(position, normal, 5);
             this.game.audioManager.playSound('enemyHit');
         } else {
+            this.game.particleManager.createParticle(
+                ParticleType.IMPACT,
+                position,
+                normal,
+                1
+            );
             this.game.audioManager.playSound('hit');
         }
     }

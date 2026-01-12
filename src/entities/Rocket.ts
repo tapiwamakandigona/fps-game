@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Game } from '../core/Game';
 import { GAME_CONSTANTS } from '../types';
+import { ParticleType } from '../managers/ParticleManager';
 
 export class Rocket {
     private game: Game;
@@ -8,6 +9,7 @@ export class Rocket {
     private velocity: THREE.Vector3;
     private lifetime: number;
     private isDead: boolean = false;
+    private smokeTimer: number = 0;
 
     constructor(game: Game, position: THREE.Vector3, direction: THREE.Vector3) {
         this.game = game;
@@ -97,6 +99,18 @@ export class Rocket {
         if (this.lifetime <= 0) {
             this.explode();
         }
+
+        // Smoke trail
+        this.smokeTimer += delta;
+        if (this.smokeTimer > 0.05) {
+            this.smokeTimer = 0;
+            this.game.particleManager.createParticle(
+                ParticleType.SMOKE,
+                this.mesh.position.clone(),
+                new THREE.Vector3(0, 0, 0),
+                0
+            );
+        }
     }
 
     private checkCollision(nextPosition: THREE.Vector3): boolean {
@@ -136,10 +150,9 @@ export class Rocket {
         this.isDead = true;
 
         // Visual effect
-        this.createExplosionEffect();
+        this.game.particleManager.createExplosion(this.mesh.position, 20);
 
         // Sound effect
-        // Reuse enemy death sound for now as it's an explosion-like sound
         this.game.audioManager.playSound('enemyDeath');
 
         // Area damage
@@ -167,69 +180,6 @@ export class Rocket {
         }
     }
 
-    private createExplosionEffect(): void {
-        const geometry = new THREE.SphereGeometry(0.5, 16, 16);
-        const material = new THREE.MeshBasicMaterial({
-            color: 0xff4400,
-            transparent: true,
-            opacity: 1
-        });
-
-        const explosion = new THREE.Mesh(geometry, material);
-        explosion.position.copy(this.mesh.position);
-        this.game.scene.add(explosion);
-
-        let lifetime = 0;
-        const duration = 0.5;
-
-        // Create a simple object to track animation state
-        const animState = {
-            update: (delta: number) => {
-                lifetime += delta;
-
-                const scale = 1 + (lifetime / duration) * GAME_CONSTANTS.ROCKET.EXPLOSION_RADIUS;
-                explosion.scale.set(scale, scale, scale);
-                material.opacity = 1 - (lifetime / duration);
-
-                if (lifetime >= duration) {
-                    this.game.scene.remove(explosion);
-                    geometry.dispose();
-                    material.dispose();
-                    return true; // Finished
-                }
-                return false; // Still running
-            }
-        };
-
-        // We can attach this to the game loop or LevelManager if we want proper delta time
-        // For now, let's use a simpler approach: attach it to a temporary entity in LevelManager
-        // But since we don't have a generic particle system, we'll use a self-contained loop that uses performance.now() for delta
-
-        let lastTime = performance.now();
-        const animate = () => {
-            if (this.game.getGameState() !== 'PLAYING' && this.game.getGameState() !== 'LEVEL_COMPLETE' && this.game.getGameState() !== 'VICTORY' && this.game.getGameState() !== 'GAME_OVER') {
-                 // If paused or menu, just wait (or could use game loop delta if integrated)
-                 // For simplicity, we just stop if game state changes significantly to avoid leaks
-                 if (this.game.getGameState() === 'MAIN_MENU') {
-                     this.game.scene.remove(explosion);
-                     geometry.dispose();
-                     material.dispose();
-                     return;
-                 }
-            }
-
-            const now = performance.now();
-            const delta = Math.min((now - lastTime) / 1000, 0.1); // Cap delta to avoid huge jumps
-            lastTime = now;
-
-            const finished = animState.update(delta);
-            if (!finished) {
-                requestAnimationFrame(animate);
-            }
-        };
-
-        animate();
-    }
 
     public shouldRemove(): boolean {
         return this.isDead;

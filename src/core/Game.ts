@@ -5,6 +5,7 @@ import { InputManager } from '../managers/InputManager';
 import { AudioManager } from '../managers/AudioManager';
 import { UIManager } from '../managers/UIManager';
 import { LevelManager } from '../managers/LevelManager';
+import { ParticleManager } from '../managers/ParticleManager';
 import { Player } from '../entities/Player';
 
 export class Game {
@@ -20,6 +21,7 @@ export class Game {
   public audioManager: AudioManager;
   public uiManager: UIManager;
   public levelManager: LevelManager;
+  public particleManager: ParticleManager;
 
   // Game state
   private gameState: GameState = GameState.LOADING;
@@ -65,11 +67,17 @@ export class Game {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setClearColor(0x1a1a2e);
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.0;
     this.container.appendChild(this.renderer.domElement);
 
     // Initialize scene
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(0x1a1a2e, 0.02);
+
+    // Add ambient lighting
+    const ambientLight = new THREE.HemisphereLight(0x4040ff, 0x1a1a2e, 0.4);
+    this.scene.add(ambientLight);
 
     // Initialize camera
     this.camera = new THREE.PerspectiveCamera(
@@ -84,6 +92,7 @@ export class Game {
     this.audioManager = new AudioManager();
     this.uiManager = new UIManager(this);
     this.levelManager = new LevelManager(this);
+    this.particleManager = new ParticleManager(this);
 
     // Initialize game loop
     this.gameLoop = new GameLoop(this);
@@ -405,6 +414,9 @@ export class Game {
 
     // Update level (enemies, pickups, etc.)
     this.levelManager.update(delta);
+
+    // Update particles
+    this.particleManager.update(delta);
 
     // Update combo timer
     if (this.comboTimer > 0) {

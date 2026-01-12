@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Game } from '../core/Game';
+import { Rocket } from '../entities/Rocket';
 import { GAME_CONSTANTS, WeaponType, ColorPalette } from '../types';
 
 interface WeaponData {
@@ -198,6 +199,26 @@ export class WeaponSystem {
             pellets: 1,
             adsZoom: mgConfig.adsZoom || 1.3,
             mesh: this.createMachineGunModel()
+        });
+
+        // Rocket Launcher
+        const rocketConfig = GAME_CONSTANTS.WEAPONS.ROCKET_LAUNCHER;
+        this.weapons.set(WeaponType.ROCKET_LAUNCHER, {
+            type: WeaponType.ROCKET_LAUNCHER,
+            name: rocketConfig.name,
+            damage: rocketConfig.damage,
+            fireRate: rocketConfig.fireRate,
+            magazineSize: rocketConfig.magazineSize,
+            currentAmmo: rocketConfig.magazineSize,
+            reserveAmmo: rocketConfig.maxReserveAmmo,
+            maxReserveAmmo: rocketConfig.maxReserveAmmo,
+            reloadTime: rocketConfig.reloadTime,
+            range: rocketConfig.range,
+            spread: rocketConfig.spread,
+            infiniteAmmo: false,
+            pellets: 1,
+            adsZoom: rocketConfig.adsZoom || 1.5,
+            mesh: this.createRocketLauncherModel()
         });
     }
 
@@ -569,6 +590,76 @@ export class WeaponSystem {
         return group;
     }
 
+    private createRocketLauncherModel(): THREE.Group {
+        const group = new THREE.Group();
+
+        const bodyMaterial = new THREE.MeshStandardMaterial({
+            color: 0x556655, // Olive green
+            roughness: 0.7,
+            metalness: 0.4
+        });
+
+        const accentMaterial = new THREE.MeshStandardMaterial({
+            color: 0x222222,
+            roughness: 0.5,
+            metalness: 0.8
+        });
+
+        // Main tube
+        const tube = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.06, 0.06, 0.8, 16),
+            bodyMaterial
+        );
+        tube.rotation.x = Math.PI / 2;
+        tube.position.set(0, 0, -0.2);
+        group.add(tube);
+
+        // Muzzle
+        const muzzle = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.07, 0.07, 0.05, 16),
+            accentMaterial
+        );
+        muzzle.rotation.x = Math.PI / 2;
+        muzzle.position.set(0, 0, -0.62);
+        group.add(muzzle);
+
+        // Rear exhaust
+        const exhaust = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.07, 0.05, 0.1, 16),
+            accentMaterial
+        );
+        exhaust.rotation.x = Math.PI / 2;
+        exhaust.position.set(0, 0, 0.25);
+        group.add(exhaust);
+
+        // Scope/Sights box
+        const scope = new THREE.Mesh(
+            new THREE.BoxGeometry(0.08, 0.1, 0.15),
+            accentMaterial
+        );
+        scope.position.set(-0.05, 0.08, -0.2);
+        group.add(scope);
+
+        // Grip/Handle
+        const grip = new THREE.Mesh(
+            new THREE.BoxGeometry(0.04, 0.12, 0.06),
+            accentMaterial
+        );
+        grip.position.set(0, -0.1, 0);
+        grip.rotation.x = 0.2;
+        group.add(grip);
+
+        // Shoulder rest
+        const rest = new THREE.Mesh(
+            new THREE.BoxGeometry(0.08, 0.15, 0.05),
+            accentMaterial
+        );
+        rest.position.set(0, -0.05, 0.2);
+        group.add(rest);
+
+        return group;
+    }
+
     public equipWeapon(type: WeaponType): void {
         // Remove current weapon mesh
         if (this.currentWeapon) {
@@ -784,6 +875,9 @@ export class WeaponSystem {
             case WeaponType.SNIPER:
                 this.game.audioManager.playSound('sniperShoot');
                 break;
+            case WeaponType.ROCKET_LAUNCHER:
+                this.game.audioManager.playSound('shotgunShoot'); // Use shotgun sound for launch temporarily
+                break;
             default:
                 this.game.audioManager.playSound('pistolShoot');
         }
@@ -804,16 +898,43 @@ export class WeaponSystem {
             case WeaponType.MACHINE_GUN:
                 this.kickbackAmount = 0.4;
                 break;
+            case WeaponType.ROCKET_LAUNCHER:
+                this.kickbackAmount = 1.0; // High recoil
+                break;
             default:
                 this.kickbackAmount = 0.3;
         }
 
-        // Perform raycast(s)
-        for (let i = 0; i < this.currentWeapon.pellets; i++) {
-            this.performRaycast();
+        // Projectile vs Raycast
+        if (this.currentWeaponType === WeaponType.ROCKET_LAUNCHER) {
+            this.fireRocket();
+        } else {
+            // Perform raycast(s)
+            for (let i = 0; i < this.currentWeapon.pellets; i++) {
+                this.performRaycast();
+            }
         }
 
         return true;
+    }
+
+    private fireRocket(): void {
+        const camera = this.game.camera;
+
+        // Spawn position: slightly in front of camera
+        const origin = new THREE.Vector3();
+        camera.getWorldPosition(origin);
+
+        const direction = new THREE.Vector3(0, 0, -1);
+        direction.applyQuaternion(camera.getWorldQuaternion(new THREE.Quaternion()));
+
+        // Offset origin slightly so rocket doesn't clip through player/camera immediately
+        origin.add(direction.clone().multiplyScalar(1.0));
+        // Lower slightly to match weapon position visual
+        origin.y -= 0.2;
+
+        const rocket = new Rocket(this.game, origin, direction);
+        this.game.levelManager.addProjectile(rocket);
     }
 
     private knifeAttack(): boolean {

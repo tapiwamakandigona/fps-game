@@ -5,8 +5,40 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="screen-orientation" content="landscape" />
+
+  <!-- SEO Meta Tags -->
+  <meta name="description"
+    content="FPS Arena - Fast-paced 3D first-person shooter built with Three.js. Battle through levels, survive zombie mode, and compete for high scores in this intense browser-based FPS game." />
+  <meta name="keywords" content="FPS game, 3D shooter, Three.js game, WebGL game, browser FPS, zombie shooter" />
+  <meta name="author" content="Tapiwa Makandigona" />
+  <link rel="canonical" href="https://tapiwamakandigona.github.io/fps-game/" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tapiwamakandigona.github.io/fps-game/" />
+  <meta property="og:title" content="FPS Arena - 3D Shooter Game | Play Now" />
+  <meta property="og:description"
+    content="Experience intense 3D first-person shooter action in your browser. Battle through levels and survive zombie mode!" />
+  <meta property="og:image" content="https://tapiwamakandigona.github.io/fps-game/og-image.png" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://tapiwamakandigona.github.io/fps-game/" />
+  <meta name="twitter:title" content="FPS Arena - 3D Shooter Game" />
+  <meta name="twitter:description" content="Fast-paced browser-based FPS built with Three.js. Play now!" />
+  <meta name="twitter:image" content="https://tapiwamakandigona.github.io/fps-game/twitter-card.png" />
+
   <title>FPS Arena - 3D Shooter Game</title>
   <style>
+    /* Hidden H1 for SEO */
+    .seo-h1 {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -172,6 +204,9 @@
 </head>
 
 <body>
+  <!-- Hidden H1 for SEO crawlers -->
+  <h1 class="seo-h1">FPS Arena - 3D First-Person Shooter Browser Game</h1>
+
   <div id="game-container"></div>
 
   <div id="loading-screen">

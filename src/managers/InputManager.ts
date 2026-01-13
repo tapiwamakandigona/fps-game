@@ -55,6 +55,12 @@ export class InputManager {
   // Mobile jump button state
   private touchJumpActive: boolean = false;
 
+  // Haptic feedback support
+  private hapticEnabled: boolean = true;
+
+  // Joystick dead zone (prevents drift)
+  private readonly JOYSTICK_DEAD_ZONE = 0.15;
+
   constructor(game: Game) {
     this.game = game;
     this.isMobile = this.detectMobile();
@@ -209,13 +215,21 @@ export class InputManager {
     this.currentInput.weapon5 = this.keys.has('Digit5');
     this.currentInput.weapon6 = this.keys.has('Digit6');
 
-    // Add touch joystick input
+    // Add touch joystick input with improved dead zone
     if (this.isMobile && this.joystickActive) {
-      // Joystick Y is inverted (up is negative)
-      if (this.joystickCurrentPos.y < -0.3) this.currentInput.forward = true;
-      if (this.joystickCurrentPos.y > 0.3) this.currentInput.backward = true;
-      if (this.joystickCurrentPos.x < -0.3) this.currentInput.left = true;
-      if (this.joystickCurrentPos.x > 0.3) this.currentInput.right = true;
+      const deadZone = this.JOYSTICK_DEAD_ZONE;
+      const joyX = this.joystickCurrentPos.x;
+      const joyY = this.joystickCurrentPos.y;
+      const distance = Math.sqrt(joyX * joyX + joyY * joyY);
+
+      // Only register input if outside dead zone
+      if (distance > deadZone) {
+        // Joystick Y is inverted (up is negative)
+        if (joyY < -0.3) this.currentInput.forward = true;
+        if (joyY > 0.3) this.currentInput.backward = true;
+        if (joyX < -0.3) this.currentInput.left = true;
+        if (joyX > 0.3) this.currentInput.right = true;
+      }
     }
 
     // Add touch shoot input
@@ -277,6 +291,29 @@ export class InputManager {
 
   public isMobileDevice(): boolean {
     return this.isMobile;
+  }
+
+  // Haptic feedback for shooting/hit effects
+  public triggerHaptic(duration: number = 25, pattern?: number[]): void {
+    if (!this.hapticEnabled) return;
+    try {
+      if ('vibrate' in navigator) {
+        navigator.vibrate(pattern || duration);
+      }
+    } catch (e) {
+      // Haptic not supported - disable to prevent future calls
+      this.hapticEnabled = false;
+    }
+  }
+
+  // Quick haptic for shooting
+  public shootHaptic(): void {
+    this.triggerHaptic(15);
+  }
+
+  // Heavier haptic for taking damage
+  public damageHaptic(): void {
+    this.triggerHaptic(0, [50, 30, 50]);
   }
 
   private createTouchControls(): void {

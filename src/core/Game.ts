@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GameState, GameStats } from '../types';
 import { GameLoop } from './GameLoop';
+import { ScreenEffects } from './ScreenEffects';
 import { InputManager } from '../managers/InputManager';
 import { AudioManager } from '../managers/AudioManager';
 import { UIManager } from '../managers/UIManager';
@@ -22,6 +23,7 @@ export class Game {
   public uiManager: UIManager;
   public levelManager: LevelManager;
   public particleManager: ParticleManager;
+  public screenEffects: ScreenEffects;
 
   // Game state
   private gameState: GameState = GameState.LOADING;
@@ -57,19 +59,33 @@ export class Game {
     // Get container
     this.container = document.getElementById('game-container')!;
 
-    // Initialize renderer
+    // Detect mobile for performance optimizations
+    const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    // Initialize renderer with mobile-optimized settings
     this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      powerPreference: 'high-performance'
+      antialias: !isMobile, // Disable anti-aliasing on mobile for better FPS
+      powerPreference: 'high-performance',
+      stencil: false, // Disable stencil buffer if not needed
+      depth: true
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Lower pixel ratio on mobile = ~40% FPS boost
+    const targetDPR = isMobile ? 1.5 : Math.min(window.devicePixelRatio, 2);
+    this.renderer.setPixelRatio(targetDPR);
+
+    // Shadow configuration based on device
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.autoUpdate = false; // Manual shadow updates for performance
+
     this.renderer.setClearColor(0x1a1a2e);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.0;
     this.container.appendChild(this.renderer.domElement);
+
+    console.log(`[Perf] Renderer: DPR=${targetDPR}, Mobile=${isMobile}, AA=${!isMobile}`);
 
     // Initialize scene
     this.scene = new THREE.Scene();
@@ -93,6 +109,7 @@ export class Game {
     this.uiManager = new UIManager(this);
     this.levelManager = new LevelManager(this);
     this.particleManager = new ParticleManager(this);
+    this.screenEffects = new ScreenEffects(this);
 
     // Initialize game loop
     this.gameLoop = new GameLoop(this);
@@ -417,6 +434,9 @@ export class Game {
 
     // Update particles
     this.particleManager.update(delta);
+
+    // Update screen effects (shake, vignette, flash)
+    this.screenEffects.update(delta);
 
     // Update combo timer
     if (this.comboTimer > 0) {

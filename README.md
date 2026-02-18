@@ -1,5 +1,8 @@
 # 🎮 Zombie Survival FPS
 
+[![Deploy](https://github.com/tapiwamakandigona/fps-game/actions/workflows/deploy.yml/badge.svg)](https://github.com/tapiwamakandigona/fps-game/actions) [![Play Now](https://img.shields.io/badge/Play-Live_Demo-brightgreen)](https://tapiwamakandigona.github.io/fps-game/)
+
+
 A thrilling browser-based 3D first-person shooter built with Three.js! Battle through waves of zombies, collect weapons, and survive as long as you can.
 
 [![Play Now](https://img.shields.io/badge/🎮_Play_Now-Live_Demo-brightgreen?style=for-the-badge)](https://tapiwamakandigona.github.io/fps-game/)

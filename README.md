@@ -1,141 +1,116 @@
-# 🎮 Zombie Survival FPS
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=200&section=header&text=Browser%203D%20FPS%20Engine&fontSize=50&animation=fadeIn&fontAlignY=38&desc=Three.js%20%2B%20WebGL%20Zombie%20Survival&descAlignY=51&descAlign=62" />
+</div>
 
-[![Deploy](https://github.com/tapiwamakandigona/fps-game/actions/workflows/deploy.yml/badge.svg)](https://github.com/tapiwamakandigona/fps-game/actions) [![Play Now](https://img.shields.io/badge/Play-Live_Demo-brightgreen)](https://tapiwamakandigona.github.io/fps-game/)
+<h1 align="center">WebGL 3D Zombie Survival (Three.js)</h1>
 
-
-A thrilling browser-based 3D first-person shooter built with Three.js! Battle through waves of zombies, collect weapons, and survive as long as you can.
-
-[![Play Now](https://img.shields.io/badge/🎮_Play_Now-Live_Demo-brightgreen?style=for-the-badge)](https://tapiwamakandigona.github.io/fps-game/)
-[![GitHub](https://img.shields.io/badge/GitHub-Source_Code-black?style=for-the-badge&logo=github)](https://github.com/tapiwamakandigona/fps-game)
-
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)
-![Three.js](https://img.shields.io/badge/Three.js-000000?style=flat&logo=three.js&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)
-
----
-
-## ✨ Features
-
-### 🎯 Gameplay
-- **Wave-Based Survival** - Battle endless waves of increasingly difficult enemies
-- **Multiple Enemy Types** - Zombies, Fast Zombies, Fat Zombies, and Gunners
-- **Mystery Boxes** - Random weapon drops with exciting reveals
-- **Shop Stations** - Purchase weapons and upgrades between waves
-- **Progressive Difficulty** - Each wave gets harder with more enemies
-
-### 🔫 Weapons Arsenal
-- **Pistol** - Starting weapon, reliable and accurate
-- **Rifle** - High fire rate, medium damage
-- **Shotgun** - Devastating close-range power
-- **SMG** - Spray and pray with high mobility
-
-### 🎨 Visuals & Audio
-- **Low-Poly Stylized Graphics** - Smooth 60fps performance
-- **Particle Effects** - Muzzle flashes, blood splatter, explosions
-- **Dynamic Lighting** - Atmospheric game environments
-- **Full Sound Design** - Weapon sounds, enemy growls, background music
-
-### 📱 Cross-Platform
-- **Desktop Controls** - WASD + Mouse
-- **Mobile Controls** - Touch joystick and buttons
-- **Responsive UI** - Works on all screen sizes
+<div align="center">
+  <p><strong>A high-performance, raw WebGL 3D First-Person Shooter built entirely in the browser using TypeScript and Three.js. No Unity, no Unreal—just pure JavaScript math.</strong></p>
+  
+  <p>
+    <a href="https://tapiwamakandigona.github.io/fps-game/"><img src="https://img.shields.io/badge/Play_Live_Demo-0A66C2?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Demo" /></a>
+    <img src="https://img.shields.io/github/languages/top/tapiwamakandigona/fps-game?style=for-the-badge&color=blue" alt="Top Language" />
+    <img src="https://github.com/tapiwamakandigona/fps-game/actions/workflows/deploy.yml/badge.svg?style=for-the-badge" alt="Deploy" />
+  </p>
+</div>
 
 ---
 
-## 🎮 Controls
+## ⚡ Architecture Overview
 
-### Desktop
-| Key | Action |
-|-----|--------|
-| `W A S D` | Move |
-| `Mouse` | Look Around |
-| `Left Click` | Shoot |
-| `R` | Reload |
-| `E` | Interact (Buy, Open) |
-| `1-4` | Switch Weapons |
-| `ESC` | Pause Menu |
+This repository demonstrates how to build a **Custom 3D Game Engine** inside a web browser. Instead of relying on heavy C++ game engines, this project uses **Three.js** to render 3D geometry and a custom-built TypeScript physics/collision handler.
 
-### Mobile
-- **Left Joystick** - Movement
-- **Right Area** - Look/Aim (drag)
-- **Fire Button** - Shoot (drag to aim while firing)
-- **Action Buttons** - Reload, Jump, Interact
+It achieves **smooth 60 FPS performance** by leveraging:
+- Optimized Low-Poly Geometries
+- Custom Render Loops (`requestAnimationFrame`)
+- PointerLock API for native FPS mouse control
+- Frustum Culling & Object Pooling
 
----
+<br/>
 
-## 🛠️ Tech Stack
+## 🎯 Gameplay Features
 
-| Technology | Purpose |
-|------------|---------|
-| **TypeScript** | Type-safe game logic |
-| **Three.js** | 3D rendering engine |
-| **Howler.js** | Audio management |
-| **Vite** | Build tool & dev server |
-| **GitHub Pages** | Hosting |
+| Feature | Technical Implementation |
+|------|-------------|
+| **Wave-Based Spawning** | Dynamic array management of enemy instances with progressive stat scaling. |
+| **Pathfinding Logic** | Vector3 math calculating shortest-path translation towards the Player's transform matrix. |
+| **Hitscan Weapons** | Raycasting from the camera center point to detect bounding-box collisions. |
+| **Mystery Boxes** | RNG (Random Number Generation) hooked into a state machine for weapon drops. |
+| **Cross-Platform Input** | Unified InputManager mapping both `Keyboard+Mouse` (Desktop) and `Touch Event Joysticks` (Mobile). |
 
 ---
 
-## 🚀 Local Development
+## 🔫 Weapons & Ballistics
 
+- **Pistol:** Starting weapon, reliable.
+- **Rifle:** High fire rate, medium damage.
+- **Shotgun:** Devastating close-range power (spread calculated via Math.random angular offset).
+- **SMG:** Spray and pray with high mobility.
+
+---
+
+## 🛠️ Core Technology Stack
+
+- **Graphics:** Three.js (WebGL)
+- **Language:** TypeScript
+- **Audio:** Howler.js (Spatial 3D audio approximation)
+- **Build System:** Vite
+- **CI/CD:** GitHub Actions -> GitHub Pages
+
+---
+
+## 🏗️ Engine Structure
+
+```mermaid
+graph TD;
+    Main[Main Render Loop] --> GM[Game Manager];
+    GM --> IM[Input Manager];
+    GM --> Physics[Collision Detection];
+    GM --> EM[Entity Manager];
+    EM --> Player[Player Controller];
+    EM --> Zombies[Enemy AI Array];
+    Physics --> Raycaster[Weapon Raycaster];
+```
+
+---
+
+## 🚀 Local Deployment
+
+To run this 3D engine locally on your machine:
+
+**1. Clone the repository**
 ```bash
-# Clone the repository
 git clone https://github.com/tapiwamakandigona/fps-game.git
 cd fps-game
+```
 
-# Install dependencies
+**2. Install Dependencies**
+```bash
 npm install
+```
 
-# Start development server
+**3. Boot the Dev Server**
+```bash
 npm run dev
-
-# Build for production
-npm run build
 ```
 
 ---
 
-## 📁 Project Structure
+## 🎮 Desktop Controls
 
-```
-src/
-├── core/              # Game engine core
-│   ├── Game.ts        # Main game controller
-│   └── GameLoop.ts    # Frame timing & updates
-├── managers/          # System managers
-│   ├── AudioManager   # Sound effects & music
-│   ├── InputManager   # Keyboard/Mouse/Touch
-│   ├── LevelManager   # Wave spawning & levels
-│   └── UIManager      # HUD & menus
-├── entities/          # Game objects
-│   ├── Player.ts      # Player controller
-│   ├── WeaponSystem   # Weapon handling
-│   ├── MysteryBox     # Random rewards
-│   └── EnemyTypes/    # Enemy implementations
-└── main.ts            # Entry point
-```
-
----
-
-## 👨‍💻 Author
-
-**Tapiwa Makandigona**
-
-- 🌐 Portfolio: [tapiwamakandigona.github.io/portfolio](https://tapiwamakandigona.github.io/portfolio)
-- 💻 GitHub: [@tapiwamakandigona](https://github.com/tapiwamakandigona)
-- 📧 Email: silentics.org@gmail.com
-
----
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
+| Key Bind | Engine Action |
+|----------|---------------|
+| `W A S D` | Vector3 Translation |
+| `Mouse` | Camera Euler Rotation |
+| `Left Click` | Raycast Trigger |
+| `R` | Reload State |
+| `E` | Contextual Raycast Interaction |
+| `ESC` | Release PointerLock API |
 
 ---
 
 <div align="center">
-
-**[🎮 Play Now](https://tapiwamakandigona.github.io/fps-game/) • [⭐ Star on GitHub](https://github.com/tapiwamakandigona/fps-game)**
-
-*Built with ❤️ by Tapiwa Makandigona*
-
+  <b>Engineering by <a href="https://github.com/tapiwamakandigona">Tapiwa Makandigona</a></b>
+  <br/>
+  <i>If you found this WebGL architecture interesting, please drop a ⭐ on the repo!</i>
 </div>

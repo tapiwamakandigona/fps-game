@@ -53,6 +53,10 @@ export class WeaponSystem {
     // Raycasting
     private raycaster: THREE.Raycaster;
 
+    // Muzzle-flash light (pooled)
+    private muzzleLight: THREE.PointLight;
+    private muzzleLightTimer: number = 0;
+
     // Mystery box weapon tracking
     private temporaryWeaponType: WeaponType | null = null;
     private temporaryWeaponTimer: number = 0; // 30 second timer for mystery box weapons
@@ -67,6 +71,13 @@ export class WeaponSystem {
 
         // Initialize raycaster
         this.raycaster = new THREE.Raycaster();
+
+        // Reusable muzzle-flash light: a single pooled point light we pulse on each
+        // shot (rather than allocating/removing a light per shot). Lights up nearby
+        // walls/enemies for a frame so shooting reads well in the dark levels.
+        this.muzzleLight = new THREE.PointLight(0xffaa33, 0, 8, 2);
+        this.muzzleLight.visible = false;
+        this.game.scene.add(this.muzzleLight);
 
         // Initialize all weapons
         this.initWeapons();
@@ -684,6 +695,16 @@ export class WeaponSystem {
     }
 
     public update(delta: number): void {
+        // Decay the muzzle-flash light (runs even with no weapon equipped).
+        if (this.muzzleLightTimer > 0) {
+            this.muzzleLightTimer -= delta;
+            this.muzzleLight.intensity = Math.max(0, (this.muzzleLightTimer / 0.05) * 6);
+            if (this.muzzleLightTimer <= 0) {
+                this.muzzleLight.visible = false;
+                this.muzzleLight.intensity = 0;
+            }
+        }
+
         if (!this.currentWeapon) return;
 
         // Update fire timer
@@ -1042,9 +1063,21 @@ export class WeaponSystem {
                 }
 
                 if (isHit) {
-                    enemy.takeDamage(this.currentWeapon.damage);
+                    // Headshot detection: if the impact lands in the top portion of
+                    // the enemy's bounding box, apply a damage multiplier. Works for
+                    // every enemy type (they vary in height) without per-type tagging.
+                    const isHeadshot = this.isHeadshot(enemy, hit.point);
+                    const damage = isHeadshot
+                        ? this.currentWeapon.damage * WeaponSystem.HEADSHOT_MULTIPLIER
+                        : this.currentWeapon.damage;
+
+                    enemy.takeDamage(damage);
                     this.game.stats.shotsHit++;
-                    this.createHitEffect(hit.point, true);
+                    this.createHitEffect(hit.point, true, isHeadshot);
+                    if (isHeadshot) {
+                        this.game.audioManager.playSound('headshot');
+                        this.game.uiManager.showHeadshot();
+                    }
                     return;
                 }
             }
@@ -1054,6 +1087,18 @@ export class WeaponSystem {
         if (levelHits.length > 0) {
             this.createHitEffect(levelHits[0].point, false);
         }
+    }
+
+    private static readonly HEADSHOT_MULTIPLIER = 2.0;
+
+    private isHeadshot(enemy: { mesh: THREE.Object3D }, point: THREE.Vector3): boolean {
+        const box = new THREE.Box3().setFromObject(enemy.mesh);
+        if (box.isEmpty()) return false;
+        const height = box.max.y - box.min.y;
+        if (height <= 0) return false;
+        // Top 28% of the body counts as the head/neck region.
+        const headThreshold = box.min.y + height * 0.72;
+        return point.y >= headThreshold;
     }
 
     private createMuzzleFlash(): void {
@@ -1071,6 +1116,12 @@ export class WeaponSystem {
             direction,
             0
         );
+
+        // Pulse the pooled muzzle light at the muzzle position.
+        this.muzzleLight.position.copy(muzzlePos);
+        this.muzzleLight.intensity = 6;
+        this.muzzleLight.visible = true;
+        this.muzzleLightTimer = 0.05;
     }
 
     private createShellEjection(): void {
@@ -1088,13 +1139,14 @@ export class WeaponSystem {
         );
     }
 
-    private createHitEffect(position: THREE.Vector3, isEnemy: boolean): void {
+    private createHitEffect(position: THREE.Vector3, isEnemy: boolean, isHeadshot: boolean = false): void {
         // Calculate direction from hit point
         // Ideally we'd have normal info, but we can fake it or just use random spray
         const normal = new THREE.Vector3(0, 1, 0);
 
         if (isEnemy) {
-            this.game.particleManager.createBloodSplatter(position, normal, 5);
+            // Bigger blood burst on headshots for extra feedback.
+            this.game.particleManager.createBloodSplatter(position, normal, isHeadshot ? 14 : 5);
             this.game.audioManager.playSound('enemyHit');
         } else {
             this.game.particleManager.createParticle(
@@ -1343,5 +1395,10 @@ export class WeaponSystem {
                 }
             });
         });
+
+        // Remove the pooled muzzle light from the scene.
+        if (this.muzzleLight) {
+            this.game.scene.remove(this.muzzleLight);
+        }
     }
 }

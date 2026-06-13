@@ -470,8 +470,8 @@ export class InputManager {
       position: absolute;
       bottom: 170px;
       left: 95px;
-      width: 50px;
-      height: 50px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       background: rgba(255, 215, 0, 0.5);
       border: 3px solid rgba(255, 215, 0, 0.9);
@@ -496,8 +496,8 @@ export class InputManager {
       position: absolute;
       top: 10px;
       right: 10px;
-      width: 45px;
-      height: 45px;
+      width: 52px;
+      height: 52px;
       border-radius: 8px;
       background: rgba(0, 0, 0, 0.4);
       border: 2px solid rgba(255, 255, 255, 0.4);
@@ -516,8 +516,8 @@ export class InputManager {
     const weaponSwitchContainer = document.createElement('div');
     weaponSwitchContainer.style.cssText = `
       position: absolute;
-      top: 15px;
-      left: 15px;
+      top: 12px;
+      right: 72px;
       display: flex;
       gap: 8px;
       pointer-events: auto;
@@ -528,15 +528,15 @@ export class InputManager {
     const pistolButton = document.createElement('div');
     pistolButton.id = 'pistol-button';
     pistolButton.style.cssText = `
-      width: 50px;
-      height: 50px;
-      border-radius: 8px;
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
       background: rgba(100, 100, 100, 0.6);
       border: 2px solid rgba(255, 255, 255, 0.5);
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 22px;
+      font-size: 24px;
       pointer-events: auto;
     `;
     pistolButton.textContent = '🔫';
@@ -546,15 +546,15 @@ export class InputManager {
     const knifeButton = document.createElement('div');
     knifeButton.id = 'knife-button';
     knifeButton.style.cssText = `
-      width: 50px;
-      height: 50px;
-      border-radius: 8px;
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
       background: rgba(192, 57, 43, 0.6);
       border: 2px solid rgba(192, 57, 43, 0.9);
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 22px;
+      font-size: 24px;
       pointer-events: auto;
     `;
     knifeButton.textContent = '🔪';
@@ -564,15 +564,15 @@ export class InputManager {
     const fullscreenButton = document.createElement('div');
     fullscreenButton.id = 'fullscreen-button';
     fullscreenButton.style.cssText = `
-      width: 50px;
-      height: 50px;
-      border-radius: 8px;
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
       background: rgba(52, 73, 94, 0.6);
       border: 2px solid rgba(52, 73, 94, 0.9);
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 18px;
+      font-size: 20px;
       pointer-events: auto;
     `;
     fullscreenButton.textContent = '⛶';

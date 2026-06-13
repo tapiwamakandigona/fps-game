@@ -132,13 +132,17 @@ export class UIManager {
     healthContainer.appendChild(this.healthText);
     this.hudContainer.appendChild(healthContainer);
 
-    // Create ammo display (bottom right)
+    // Create ammo display (bottom right). On mobile, lift it above the
+    // fire + reload touch buttons (which occupy the bottom-right corner) so
+    // the ammo/reserve readout isn't hidden behind them.
     const ammoContainer = document.createElement('div');
+    const isMobile = this.game.inputManager?.isMobileDevice?.() ?? false;
     ammoContainer.style.cssText = `
       position: absolute;
-      bottom: 30px;
-      right: 20px;
+      bottom: ${isMobile ? '210px' : '30px'};
+      right: ${isMobile ? '16px' : '20px'};
       text-align: right;
+      z-index: 5;
     `;
 
     this.weaponNameText = document.createElement('div');

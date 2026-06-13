@@ -51,6 +51,7 @@ export class AudioManager {
     await this.loadSound('victory', this.createVictorySound());
     await this.loadSound('waveStart', this.createWaveStartSound());
     await this.loadSound('combo', this.createComboSound());
+    await this.loadSound('headshot', this.createComboSound());
 
     // Load music
     await this.loadMusic('menu', this.createMenuMusic());

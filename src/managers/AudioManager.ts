@@ -57,6 +57,7 @@ export class AudioManager {
     await this.loadMusic('level1', this.createLevel1Music());
     await this.loadMusic('level2', this.createLevel2Music());
     await this.loadMusic('level3', this.createZombieModeMusic());
+    await this.loadMusic('ambient', this.createZombieModeMusic());
 
     this.initialized = true;
   }

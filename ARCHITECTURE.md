@@ -30,10 +30,9 @@ The game follows an Entity-Component-System inspired architecture with a central
 - Touch controls for mobile (virtual joystick)
 
 ### AudioManager
-- Weapon sounds (per-weapon)
-- Enemy sounds (growls, death)
-- Background music with crossfade
-- Spatial audio positioning
+- Procedurally generated weapon sounds (per-weapon type)
+- Enemy and player feedback sounds
+- Looping background music per level
 
 ### LevelManager
 - Procedural level generation
@@ -58,9 +57,9 @@ The game follows an Entity-Component-System inspired architecture with a central
 
 ### Player
 - First-person camera controller
-- Health system with regeneration
-- Collision detection (raycasting)
-- Movement (walk, sprint, jump)
+- Health system with invincibility frames
+- Sphere-box collision detection
+- Movement (walk, jump)
 
 ### Weapons
 - Weapon switching system
@@ -83,11 +82,10 @@ The game follows an Entity-Component-System inspired architecture with a central
 
 ## Performance
 
-- Frustum culling for off-screen entities
-- Object pooling for particles and projectiles
-- LOD system for distant enemies
-- Efficient collision detection with spatial partitioning
-- Texture atlasing for UI elements
+- Delta time smoothing for consistent physics
+- Particle count capping (pool limit of 200)
+- Mobile-specific optimizations (reduced DPR, basic shadow maps, no anti-aliasing)
+- Manual shadow map updates
 
 ## Build
 

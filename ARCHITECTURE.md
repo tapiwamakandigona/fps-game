@@ -7,9 +7,9 @@ The game follows an Entity-Component-System inspired architecture with a central
 ## Core Systems
 
 ### Game Loop (`core/GameLoop.ts`)
-- Fixed timestep update (60 FPS target)
-- Delta time smoothing for consistent physics
+- Variable timestep, smoothed by averaging the last ~10 frame deltas (clamped) and passed to `update()`
 - RequestAnimationFrame-based rendering
+- Note: physics (jump/gravity) integrate against this smoothed delta, so they are frame-rate independent in practice but not a true fixed timestep
 
 ### Game Controller (`core/Game.ts`)
 - Initializes Three.js scene, camera, renderer
@@ -58,9 +58,9 @@ The game follows an Entity-Component-System inspired architecture with a central
 
 ### Player
 - First-person camera controller
-- Health system with regeneration
-- Collision detection (raycasting)
-- Movement (walk, sprint, jump)
+- Health system (damage, invincibility frames, healing via pickups / health station). No passive regeneration.
+- Collision detection (sphere-vs-AABB against static level colliders, with wall sliding)
+- Movement (walk, jump). Sprint is not currently implemented.
 
 ### Weapons
 - Weapon switching system

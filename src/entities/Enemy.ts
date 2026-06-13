@@ -10,6 +10,10 @@ export abstract class Enemy implements Damageable {
   // Animation
   private walkCycle: number = 0;
 
+  // Hit flash (timer-based so it survives rapid double-hits and respects pause)
+  private baseColorHex: number = 0;
+  private flashTimer: number = 0;
+
   // Stats
   public health: number;
   public maxHealth: number;
@@ -62,6 +66,13 @@ export abstract class Enemy implements Damageable {
     this.eyeMesh = eye;
     this.mesh.add(this.bodyMesh);
     this.mesh.add(this.eyeMesh);
+
+    // Cache the true base color once so flashRed() always restores to it,
+    // even if the enemy is hit again mid-flash.
+    const bodyMat = this.bodyMesh.material as THREE.MeshStandardMaterial;
+    if (bodyMat && bodyMat.color) {
+      this.baseColorHex = bodyMat.color.getHex();
+    }
     
     // Generate patrol points
     this.generatePatrolPoints(position);
@@ -85,6 +96,17 @@ export abstract class Enemy implements Damageable {
   }
 
   public update(delta: number): void {
+    // Restore body color after a hit flash. Driven by a timer instead of
+    // setTimeout so a second hit within the flash window can't lock in red
+    // and so it pauses correctly with the game.
+    if (this.flashTimer > 0) {
+      this.flashTimer -= delta;
+      if (this.flashTimer <= 0) {
+        const mat = this.bodyMesh.material as THREE.MeshStandardMaterial;
+        if (mat && mat.color) mat.color.setHex(this.baseColorHex);
+      }
+    }
+
     if (this.isDying) {
       this.updateDeath(delta);
       return;
@@ -248,18 +270,24 @@ export abstract class Enemy implements Damageable {
     for (const obj of levelObjects) {
       if (!obj.userData.isCollider) continue;
       if (!(obj instanceof THREE.Mesh)) continue;
-      
-      // Simple sphere-box collision
-      const box = new THREE.Box3().setFromObject(obj);
+
+      // Colliders are static, so compute the world-space AABB once and cache it
+      // on userData instead of rebuilding it (setFromObject) every frame.
+      let box = obj.userData.aabb as THREE.Box3 | undefined;
+      if (!box) {
+        box = new THREE.Box3().setFromObject(obj);
+        obj.userData.aabb = box;
+      }
+
       const closestPoint = new THREE.Vector3();
       box.clampPoint(position, closestPoint);
-      
+
       const distance = position.distanceTo(closestPoint);
       if (distance < collisionRadius) {
         return true;
       }
     }
-    
+
     return false;
   }
 
@@ -331,14 +359,11 @@ export abstract class Enemy implements Damageable {
   }
 
   protected flashRed(): void {
-    const originalColor = (this.bodyMesh.material as THREE.MeshStandardMaterial).color.getHex();
-    (this.bodyMesh.material as THREE.MeshStandardMaterial).color.setHex(0xff0000);
-    
-    setTimeout(() => {
-      if (this.bodyMesh && this.bodyMesh.material) {
-        (this.bodyMesh.material as THREE.MeshStandardMaterial).color.setHex(originalColor);
-      }
-    }, 100);
+    const mat = this.bodyMesh.material as THREE.MeshStandardMaterial;
+    if (!mat || !mat.color) return;
+    mat.color.setHex(0xff0000);
+    // Restore is handled by flashTimer in update() so rapid hits can't lock in red.
+    this.flashTimer = 0.1;
   }
 
   protected die(): void {

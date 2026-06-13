@@ -331,8 +331,14 @@ export class Player implements Damageable {
       if (!obj.userData.isCollider) continue;
       if (!(obj instanceof THREE.Mesh)) continue;
 
-      // Simple sphere-box collision
-      const box = new THREE.Box3().setFromObject(obj);
+      // Colliders are static, so cache the world-space AABB on userData and
+      // reuse it instead of rebuilding it (setFromObject) up to 3x per frame.
+      let box = obj.userData.aabb as THREE.Box3 | undefined;
+      if (!box) {
+        box = new THREE.Box3().setFromObject(obj);
+        obj.userData.aabb = box;
+      }
+
       const closestPoint = new THREE.Vector3();
       box.clampPoint(position, closestPoint);
 

@@ -958,7 +958,12 @@ export class WeaponSystem {
         const enemyMeshes = enemies.map(e => e.mesh);
         const hits = this.raycaster.intersectObjects(enemyMeshes, true);
 
-        if (hits.length > 0) {
+        // Don't let the knife reach through walls either.
+        const levelObjects = this.game.levelManager.getLevelObjects();
+        const wallHits = this.raycaster.intersectObjects(levelObjects, true);
+        const nearestWallDistance = wallHits.length > 0 ? wallHits[0].distance : Infinity;
+
+        if (hits.length > 0 && hits[0].distance <= nearestWallDistance) {
             for (const enemy of enemies) {
                 let isHit = false;
                 for (const hit of hits) {
@@ -1011,10 +1016,14 @@ export class WeaponSystem {
         const enemyMeshes = enemies.map(e => e.mesh);
         const levelObjects = this.game.levelManager.getLevelObjects();
 
-        // Check enemies first
+        // Raycast against both enemies and walls. intersectObjects returns hits
+        // sorted nearest-first, so we can compare the closest enemy hit against
+        // the closest wall hit and only damage the enemy if nothing is in the way.
         const enemyHits = this.raycaster.intersectObjects(enemyMeshes, true);
+        const levelHits = this.raycaster.intersectObjects(levelObjects, true);
+        const nearestWallDistance = levelHits.length > 0 ? levelHits[0].distance : Infinity;
 
-        if (enemyHits.length > 0) {
+        if (enemyHits.length > 0 && enemyHits[0].distance <= nearestWallDistance) {
             const hit = enemyHits[0];
 
             for (const enemy of enemies) {
@@ -1041,8 +1050,7 @@ export class WeaponSystem {
             }
         }
 
-        // Check walls
-        const levelHits = this.raycaster.intersectObjects(levelObjects, true);
+        // No enemy hit (or a wall was in front of the nearest enemy): show a wall impact.
         if (levelHits.length > 0) {
             this.createHitEffect(levelHits[0].point, false);
         }

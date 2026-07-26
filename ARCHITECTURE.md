@@ -7,9 +7,9 @@ The game follows an Entity-Component-System inspired architecture with a central
 ## Core Systems
 
 ### Game Loop (`core/GameLoop.ts`)
-- Fixed timestep update (60 FPS target)
-- Delta time smoothing for consistent physics
+- Variable timestep, smoothed by averaging the last ~10 frame deltas (clamped) and passed to `update()`
 - RequestAnimationFrame-based rendering
+- Note: physics (jump/gravity) integrate against this smoothed delta, so they are frame-rate independent in practice but not a true fixed timestep
 
 ### Game Controller (`core/Game.ts`)
 - Initializes Three.js scene, camera, renderer
@@ -30,9 +30,10 @@ The game follows an Entity-Component-System inspired architecture with a central
 - Touch controls for mobile (virtual joystick)
 
 ### AudioManager
-- Procedurally generated weapon sounds (per-weapon type)
-- Enemy and player feedback sounds
-- Looping background music per level
+- Weapon sounds (per-weapon)
+- Enemy sounds (growls, death)
+- Background music with crossfade
+- Spatial audio positioning
 
 ### LevelManager
 - Procedural level generation
@@ -57,9 +58,9 @@ The game follows an Entity-Component-System inspired architecture with a central
 
 ### Player
 - First-person camera controller
-- Health system with invincibility frames
-- Sphere-box collision detection
-- Movement (walk, jump)
+- Health system (damage, invincibility frames, healing via pickups / health station). No passive regeneration.
+- Collision detection (sphere-vs-AABB against static level colliders, with wall sliding)
+- Movement (walk, jump). Sprint is not currently implemented.
 
 ### Weapons
 - Weapon switching system
@@ -82,10 +83,11 @@ The game follows an Entity-Component-System inspired architecture with a central
 
 ## Performance
 
-- Delta time smoothing for consistent physics
-- Particle count capping (pool limit of 200)
-- Mobile-specific optimizations (reduced DPR, basic shadow maps, no anti-aliasing)
-- Manual shadow map updates
+- Frustum culling for off-screen entities
+- Object pooling for particles and projectiles
+- LOD system for distant enemies
+- Efficient collision detection with spatial partitioning
+- Texture atlasing for UI elements
 
 ## Build
 

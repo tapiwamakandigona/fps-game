@@ -5,7 +5,7 @@
 <h1 align="center">WebGL 3D Zombie Survival (Three.js)</h1>
 
 <div align="center">
-  <p><strong>A high-performance, raw WebGL 3D First-Person Shooter built entirely in the browser using TypeScript and Three.js. No Unity, no Unreal—just pure JavaScript math.</strong></p>
+  <p><strong>A high-performance 3D First-Person Shooter built entirely in the browser with TypeScript and Three.js (WebGL). No Unity, no Unreal—rendering via Three.js with custom TypeScript game logic, physics and collision.</strong></p>
   
   <p>
     <a href="https://tapiwamakandigona.github.io/fps-game/"><img src="https://img.shields.io/badge/Play_Live_Demo-0A66C2?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Demo" /></a>

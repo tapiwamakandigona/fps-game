@@ -43,6 +43,11 @@ export class Game {
     currentLevel: 1
   };
 
+  // High score (persisted in localStorage). -1 means "not loaded yet".
+  private static readonly HIGH_SCORE_KEY = 'fps-arena-highscore';
+  private highScore: number = -1;
+  private newHighScore: boolean = false;
+
   // Kill combo system
   private comboCount: number = 0;
   private comboTimer: number = 0;
@@ -236,9 +241,41 @@ export class Game {
     this.audioManager.resumeMusic();
   }
 
+  public getHighScore(): number {
+    if (this.highScore < 0) {
+      try {
+        const raw = localStorage.getItem(Game.HIGH_SCORE_KEY);
+        this.highScore = raw ? (parseInt(raw, 10) || 0) : 0;
+      } catch {
+        this.highScore = 0;
+      }
+    }
+    return this.highScore;
+  }
+
+  public wasNewHighScore(): boolean {
+    return this.newHighScore;
+  }
+
+  private commitHighScore(): void {
+    const best = this.getHighScore();
+    if (this.stats.score > best) {
+      this.highScore = this.stats.score;
+      this.newHighScore = true;
+      try {
+        localStorage.setItem(Game.HIGH_SCORE_KEY, String(this.stats.score));
+      } catch {
+        /* localStorage unavailable (private mode) — ignore */
+      }
+    } else {
+      this.newHighScore = false;
+    }
+  }
+
   public gameOver(): void {
     this.setGameState(GameState.GAME_OVER);
     this.inputManager.unlockPointer();
+    this.commitHighScore();
     this.audioManager.playSound('gameOver');
     this.audioManager.stopMusic();
     this.uiManager.showGameOver();
@@ -247,6 +284,7 @@ export class Game {
   public victory(): void {
     this.setGameState(GameState.VICTORY);
     this.inputManager.unlockPointer();
+    this.commitHighScore();
     this.audioManager.playSound('victory');
     this.audioManager.stopMusic();
     this.uiManager.showVictory();

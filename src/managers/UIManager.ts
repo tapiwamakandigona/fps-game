@@ -132,13 +132,17 @@ export class UIManager {
     healthContainer.appendChild(this.healthText);
     this.hudContainer.appendChild(healthContainer);
 
-    // Create ammo display (bottom right)
+    // Create ammo display (bottom right). On mobile, lift it above the
+    // fire + reload touch buttons (which occupy the bottom-right corner) so
+    // the ammo/reserve readout isn't hidden behind them.
     const ammoContainer = document.createElement('div');
+    const isMobile = this.game.inputManager?.isMobileDevice?.() ?? false;
     ammoContainer.style.cssText = `
       position: absolute;
-      bottom: 30px;
-      right: 20px;
+      bottom: ${isMobile ? '210px' : '30px'};
+      right: ${isMobile ? '16px' : '20px'};
       text-align: right;
+      z-index: 5;
     `;
 
     this.weaponNameText = document.createElement('div');
@@ -625,6 +629,42 @@ export class UIManager {
     }
   }
 
+  public showHeadshot(): void {
+    const el = document.createElement('div');
+    el.style.cssText = `
+      position: fixed;
+      top: 38%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Arial Black', sans-serif;
+      font-size: 28px;
+      font-weight: bold;
+      color: #f1c40f;
+      text-shadow: 0 0 12px rgba(241, 196, 15, 0.8);
+      letter-spacing: 2px;
+      z-index: 650;
+      pointer-events: none;
+      animation: headshotPop 0.7s ease-out forwards;
+    `;
+    el.textContent = 'HEADSHOT!';
+
+    if (!document.getElementById('headshot-keyframes')) {
+      const style = document.createElement('style');
+      style.id = 'headshot-keyframes';
+      style.textContent = `
+        @keyframes headshotPop {
+          0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+          25% { opacity: 1; transform: translate(-50%, -60%) scale(1.1); }
+          100% { opacity: 0; transform: translate(-50%, -90%) scale(1); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 700);
+  }
+
   public showGameOver(): void {
     this.showEndScreen('GAME OVER', '#e74c3c');
   }
@@ -707,7 +747,22 @@ export class UIManager {
       color: #fff;
       margin-bottom: 40px;
     `;
+    scoreEl.style.marginBottom = '12px';
     scoreEl.textContent = `Final Score: ${this.game.stats.score}`;
+
+    // High score (persisted in localStorage). Highlight when it's a new best.
+    const isNewBest = this.game.wasNewHighScore();
+    const bestEl = document.createElement('div');
+    bestEl.style.cssText = `
+      font-family: 'Arial', sans-serif;
+      font-size: 24px;
+      color: ${isNewBest ? '#f1c40f' : '#bdc3c7'};
+      text-shadow: ${isNewBest ? '0 0 12px rgba(241, 196, 15, 0.6)' : 'none'};
+      margin-bottom: 40px;
+    `;
+    bestEl.textContent = isNewBest
+      ? `🏆 NEW BEST: ${this.game.getHighScore()}`
+      : `Best: ${this.game.getHighScore()}`;
 
     const restartBtn = document.createElement('button');
     restartBtn.className = 'menu-button';
@@ -731,6 +786,7 @@ export class UIManager {
 
     endScreen.appendChild(titleEl);
     endScreen.appendChild(scoreEl);
+    endScreen.appendChild(bestEl);
     endScreen.appendChild(restartBtn);
     document.body.appendChild(endScreen);
   }

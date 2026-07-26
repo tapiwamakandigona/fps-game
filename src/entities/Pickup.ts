@@ -125,6 +125,18 @@ export class Pickup {
       case PickupType.AMMO:
         player.addAmmo(GAME_CONSTANTS.PICKUP.AMMO_AMOUNT);
         break;
+      case PickupType.RIFLE_AMMO:
+        player.addRifleAmmo(GAME_CONSTANTS.PICKUP.AMMO_AMOUNT);
+        break;
+      case PickupType.SHOTGUN_AMMO:
+        player.addShotgunAmmo(GAME_CONSTANTS.PICKUP.AMMO_AMOUNT);
+        break;
+      case PickupType.SNIPER_AMMO:
+        player.addSniperAmmo(GAME_CONSTANTS.PICKUP.AMMO_AMOUNT);
+        break;
+      case PickupType.COIN:
+        this.game.addCoins(GAME_CONSTANTS.PICKUP.COIN_VALUE);
+        break;
     }
   }
 

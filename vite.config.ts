@@ -6,12 +6,12 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    minify: 'esbuild',
+    minify: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          three: ['three'],
-          howler: ['howler']
+        manualChunks(id) {
+          if (id.includes('node_modules/three')) return 'three';
+          if (id.includes('node_modules/howler')) return 'howler';
         }
       }
     }
